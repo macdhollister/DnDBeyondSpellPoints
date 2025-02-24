@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         DnDBeyond Spell Points
 // @description  Spell point tracker
-// @version      1.3.0
+// @version      1.4.0
 // @author       Mwr247
 // @namespace    Mwr247
 // @homepageURL  https://github.com/Mwr247/DnDBeyondSpellPoints
@@ -131,7 +131,7 @@
                 lvl.spFlag = true;
                 lvl.innerText += ' (Cost ' + sc[level - 1][1] + ')';
               }
-              [...el.getElementsByClassName('ddbc-button')].filter(ele => /CAST$/.test(ele.innerText) && !ele.evtFlag).forEach(ele => {
+              [...el.querySelectorAll('.ddbc-spell-damage-effect__damages > .integrated-dice__container')].filter(ele => !ele.evtFlag).forEach(ele => {
                 ele.evtFlag = true;
                 if (/Artificer|Bard|Cleric|Druid|Paladin|Ranger|Sorcerer|Wizard|Psionic Spells/.test(ele.parentNode.parentNode.innerText)) {
                   ele.addEventListener('click', cast(level));
@@ -150,7 +150,7 @@
       const actionCastClick = evt => {
         console.log('checking actions');
         setTimeout(() => {
-          [...content.getElementsByClassName('ddbc-combat-attack--spell')].filter(ele => !ele.evtFlag).forEach(ele => {
+          [...content.getElementsByClassName('ct-feature-snippet__spell-summary')].filter(ele => !ele.evtFlag).forEach(ele => {
             ele.evtFlag = true;
             if (/Artificer|Bard|Cleric|Druid|Paladin|Ranger|Sorcerer|Wizard|Psionic Spells/.test(ele.innerText)) {
               ele.addEventListener('click', panelOpenClick);
@@ -262,28 +262,25 @@
           setTimeout(() => {
             useSpellPoints = JSON.parse(localStorage.getItem('useSp' + player.id)) || false;
             mergeSorcPoints = JSON.parse(localStorage.getItem('mergeSp' + player.id)) || false;
-            const opt = [...content.getElementsByClassName('builder-field builder-field-toggles')].find(ele => /Optional Features/.test(ele.innerText));
-            const tmp = opt.getElementsByClassName('builder-field-toggles-field')[0];
+            const opt = [...content.querySelectorAll('[class^=styles_checkboxesContainer__]')].find(ele => /Optional Features/.test(ele.innerText));
+            if (opt == null) { return; }
+            const tmp = opt.querySelectorAll('[class^=styles_checkboxWrapper__]')[0];
             const useSp = tmp.cloneNode(true);
-            useSp.childNodes[1].innerText = 'Use Spell Points (Variant Rule)';
-            useSp.childNodes[0].childNodes[0].classList.remove('ddbc-toggle-field--is-enabled', 'ddbc-toggle-field--is-disabled');
-            useSp.childNodes[0].childNodes[0].classList.add(useSpellPoints ? 'ddbc-toggle-field--is-enabled' : 'ddbc-toggle-field--is-disabled');
+            useSp.childNodes[0].childNodes[1].innerText = 'Use Spell Points (Variant Rule)';
+            useSp.childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].checked = useSpellPoints;
             useSp.childNodes[0].addEventListener('click', evt => {
               useSpellPoints = !useSpellPoints;
               localStorage.setItem('useSp' + player.id, useSpellPoints);
-              useSp.childNodes[0].childNodes[0].classList.remove('ddbc-toggle-field--is-enabled', 'ddbc-toggle-field--is-disabled');
-              useSp.childNodes[0].childNodes[0].classList.add(useSpellPoints ? 'ddbc-toggle-field--is-enabled' : 'ddbc-toggle-field--is-disabled');
+              useSp.childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].checked = useSpellPoints;
             });
             tmp.parentNode.appendChild(useSp);
             const mergeSp = tmp.cloneNode(true);
-            mergeSp.childNodes[1].innerText = 'Combine Spell Points with Sorcery Points';
-            mergeSp.childNodes[0].childNodes[0].classList.remove('ddbc-toggle-field--is-enabled', 'ddbc-toggle-field--is-disabled');
-            mergeSp.childNodes[0].childNodes[0].classList.add(mergeSorcPoints ? 'ddbc-toggle-field--is-enabled' : 'ddbc-toggle-field--is-disabled');
+            mergeSp.childNodes[0].childNodes[1].innerText = 'Combine Spell Points with Sorcery Points';
+            mergeSp.childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].checked = mergeSorcPoints;
             mergeSp.childNodes[0].addEventListener('click', evt => {
               mergeSorcPoints = !mergeSorcPoints;
               localStorage.setItem('mergeSp' + player.id, mergeSorcPoints);
-              mergeSp.childNodes[0].childNodes[0].classList.remove('ddbc-toggle-field--is-enabled', 'ddbc-toggle-field--is-disabled');
-              mergeSp.childNodes[0].childNodes[0].classList.add(mergeSorcPoints ? 'ddbc-toggle-field--is-enabled' : 'ddbc-toggle-field--is-disabled');
+              mergeSp.childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].checked = mergeSorcPoints;
             });
             tmp.parentNode.appendChild(mergeSp);
           }, 50);
